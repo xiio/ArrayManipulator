@@ -224,6 +224,20 @@ class ArrayManipulator
 		return $this;
 	}
 
+	/**
+	 * Convert all object elements to array
+	 *
+	 * @param bool $recursive
+	 *
+	 * @return $this
+	 */
+	public function toArray($recursive = true){
+		$this->data = array_map(function($element) use ($recursive){
+			return is_object($element)?json_decode(json_encode($element), $recursive):$element;
+		}, $this->data);
+		return $this;
+	}
+
 	protected function compact_array($item, $recursive)
 	{
 		if (count($item) == 1) {
