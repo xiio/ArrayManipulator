@@ -48,6 +48,33 @@ class ArrayManipulator
 	}
 
 	/**
+	 * Concat fields with separator
+	 *
+	 * @param array $fields            fields to concat
+	 * @param       $glue              Separator
+	 * @param       $newFieldName      Name of field where to store concatenated value
+	 * @param bool  $leaveConcatFields Leave $fields untouched if TRUE. Remove fields if FALSE. Default: TRUE
+	 *
+	 * @return $this
+	 */
+	public function concatWS(array $fields, $glue, $newFieldName, $leaveConcatFields = TRUE)
+	{
+		foreach ($this->data as $key => $item) {
+			$concat_values = [];
+			$dotkey = DotKey::on($item);
+			foreach ($fields as $concat_field_name) {
+				$concat_values[] = $dotkey->get($concat_field_name);
+				if (FALSE === $leaveConcatFields) {
+					$dotkey->remove($concat_field_name);
+				}
+			}
+			$this->data[ $key ] = $dotkey->set($newFieldName, implode($glue, $concat_values));
+		}
+
+		return $this;
+	}
+
+	/**
 	 * Filter array by field name and value
 	 *
 	 * @param $field
@@ -112,8 +139,10 @@ class ArrayManipulator
 	 *
 	 * @return \xiio\ArrayManipulator
 	 */
-	public static function init(array $array){
+	public static function init(array $array)
+	{
 		$am = new ArrayManipulator($array);
+
 		return $am;
 	}
 

@@ -119,6 +119,14 @@ class ArrayManipulatorSpec extends ObjectBehavior
 		$this->get()->shouldHaveElementWithKey(2, "meta.creator");
 	}
 
+	function it_implode_fields(){
+		$implode_fields = ['name', 'meta.creator'];
+		$input = $this->getExampleArray();
+		$this->setArray($input);
+		$this->concatWS($implode_fields, " - ", "name", false);
+		$this->get()->shouldHaveElementKeyWithValue(0, 'name', 'first - David');
+	}
+
 	function it_can_help_get_select_options(){
 		$leave_fields = ['name'];
 		$input = $this->getExampleArray();
@@ -191,6 +199,12 @@ class ArrayManipulatorSpec extends ObjectBehavior
 					$result = true;
                 }
                 return $result;
+            },
+            'haveElementKeyWithValue' => function ($subject, $element_index, $key, $value) {
+                if (!isset($subject[$element_index])){
+                    return false;
+                }
+                return DotKey::on($subject[$element_index])->get($key)===$value;
             },
             'doesNotHaveElementWithKey' => function ($subject, $element_index, $key) {
                 if (!isset($subject[$element_index])){
