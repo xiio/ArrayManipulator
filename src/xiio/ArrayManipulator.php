@@ -47,37 +47,6 @@ class ArrayManipulator
 	}
 
 	/**
-	 * Concat string fields
-	 *
-	 * @param array  $fields
-	 * @param string $new_field New field Name
-	 * @param string $glue      default space
-	 *
-	 * @return ArrayManipulator
-	 */
-	public function concatWs(array $fields, $new_field, $glue = ' ')
-	{
-		$result = array();
-		foreach ($this->data as $key => $row) {
-			if (!is_array($row) || empty($row))
-				continue;
-			$concat = array();
-			foreach ($row as $field => $val) {
-				if (in_array($field, $fields) && is_string($val)) {
-					$concat[] = $val;
-				} else {
-					$result[ $key ][ $field ] = $val;
-				}
-			}
-			$concat = implode($glue, $concat);
-			$result[ $key ][ $new_field ] = $concat;
-		}
-		$this->setArray($result);
-
-		return $this;
-	}
-
-	/**
 	 * Filter array by field name and value
 	 *
 	 * @param $field
