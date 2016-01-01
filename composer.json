@@ -17,8 +17,8 @@
     }
   ],
   "support": {
-    "issues": "https://github.com/xiio/ArrayManipulator/issues",
-    "source": "https://github.com/xiio/ArrayManipulator"
+    "issues": "https://github.com/xiio/array-manipulator/issues",
+    "source": "https://github.com/xiio/array-manipulator"
   },
   "require": {
     "jasny/dotkey": "v1.0.0",
