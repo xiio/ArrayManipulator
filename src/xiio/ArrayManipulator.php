@@ -30,6 +30,47 @@ class ArrayManipulator
 
 //methods
 	/**
+	 * Apply callback function for every element
+	 *
+	 * @param       $callback
+	 *
+	 * @return $this
+	 */
+	public function apply($callback)
+	{
+		if (!is_callable($callback)) {
+			throw new \InvalidArgumentException('$callable parameter should be callable.');
+		}
+		foreach ($this->data as $key => $element) {
+			$this->data[ $key ] = call_user_func($callback, $element);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Call method on all objects elements if method exist
+	 *
+	 * @param       $method_name
+	 * @param array $arguments
+	 * @param bool  $set_return_as_value
+	 *
+	 * @return $this
+	 */
+	public function call($method_name, $arguments = [], $set_return_as_value = TRUE)
+	{
+		foreach ($this->data as $key => $element) {
+			if (is_object($element) && method_exists($element, $method_name)) {
+				$result = call_user_func_array([$element, $method_name], $arguments);
+				if (TRUE === $set_return_as_value) {
+					$this->data[ $key ] = $result;
+				}
+			}
+		}
+		return $this;
+	}
+
+	/**
 	 * Group elements aware of count and type. If is more then one row make array if is only one set it as value
 	 *
 	 * @param bool $recursive
@@ -231,10 +272,12 @@ class ArrayManipulator
 	 *
 	 * @return $this
 	 */
-	public function toArray($recursive = true){
-		$this->data = array_map(function($element) use ($recursive){
-			return is_object($element)?json_decode(json_encode($element), $recursive):$element;
+	public function toArray($recursive = TRUE)
+	{
+		$this->data = array_map(function ($element) use ($recursive) {
+			return is_object($element) ? json_decode(json_encode($element), $recursive) : $element;
 		}, $this->data);
+
 		return $this;
 	}
 
@@ -305,5 +348,7 @@ class ArrayManipulator
 
 		return $object;
 	}
-
 }
+
+
+
