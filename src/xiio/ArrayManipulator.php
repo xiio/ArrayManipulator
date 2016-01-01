@@ -202,13 +202,13 @@ class ArrayManipulator
 	public function leaveFields(array $fields)
 	{
 		$result = [];
-		foreach ($this->data as $element) {
+		foreach ($this->data as $key => $element) {
 			if (is_array($element)) {
-				$result[] = $this->leave_fields_array($element, $fields);
+				$result[$key] = $this->leave_fields_array($element, $fields);
 			} elseif (is_object($element)) {
-				$result[] = $this->leave_fields_object($element, $fields);
+				$result[$key] = $this->leave_fields_object($element, $fields);
 			} else {
-				$result[] = $element;
+				$result[$key] = $element;
 			}
 		}
 		$this->data = $result;
