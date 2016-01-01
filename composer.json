@@ -22,7 +22,8 @@
   },
   "require": {
     "jasny/dotkey": "v1.0.0",
-    "php": ">=5.4.0"
+    "php": ">=5.4.0",
+    "xiio/array-manipulator": "dev-master"
   },
   "require-dev": {
     "phpspec/phpspec": "2.4.0-alpha1"

@@ -28,6 +28,7 @@ class ArrayManipulator
 		$this->setArray($array, TRUE);
 	}
 
+//methods
 	/**
 	 * Group elements aware of count and type. If is more then one row make array if is only one set it as value
 	 *
@@ -102,6 +103,18 @@ class ArrayManipulator
 		}
 
 		return $this;
+	}
+
+	/**
+	 * Factory method to creates instanace of ArrayManipulator
+	 *
+	 * @param array $array
+	 *
+	 * @return \xiio\ArrayManipulator
+	 */
+	public static function init(array $array){
+		$am = new ArrayManipulator($array);
+		return $am;
 	}
 
 	public function isEmpty()

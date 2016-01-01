@@ -4,9 +4,58 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "a969a1b94874659dd6dfc84926fbede8",
-    "content-hash": "5a120c016f8190e6c043dd27a7f50db9",
+    "hash": "4b58607921b3f689294d492fc03c8e2a",
+    "content-hash": "641454d70874ba65d5f845cda14e5a28",
     "packages": [
+        {
+            "name": "jasny/dotkey",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jasny/dotkey.git",
+                "reference": "0b6cebc88b6e4948b024d79f89a40b253bbd7b6e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jasny/dotkey/zipball/0b6cebc88b6e4948b024d79f89a40b253bbd7b6e",
+                "reference": "0b6cebc88b6e4948b024d79f89a40b253bbd7b6e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8",
+                "satooshi/php-coveralls": "^0.6.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jasny\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arnold Daniels",
+                    "email": "arnold@jasny.net",
+                    "homepage": "http://www.jasny.net"
+                }
+            ],
+            "description": "Access objects and arrays through dot notation",
+            "keywords": [
+                "array",
+                "json",
+                "object",
+                "query"
+            ],
+            "time": "2015-08-12 14:51:51"
+        }
+    ],
+    "packages-dev": [
         {
             "name": "doctrine/instantiator",
             "version": "1.0.5",
@@ -60,53 +109,6 @@
                 "instantiate"
             ],
             "time": "2015-06-14 21:17:01"
-        },
-        {
-            "name": "jasny/dotkey",
-            "version": "v1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/jasny/dotkey.git",
-                "reference": "0b6cebc88b6e4948b024d79f89a40b253bbd7b6e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/jasny/dotkey/zipball/0b6cebc88b6e4948b024d79f89a40b253bbd7b6e",
-                "reference": "0b6cebc88b6e4948b024d79f89a40b253bbd7b6e",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.8",
-                "satooshi/php-coveralls": "^0.6.1"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Jasny\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Arnold Daniels",
-                    "email": "arnold@jasny.net",
-                    "homepage": "http://www.jasny.net"
-                }
-            ],
-            "description": "Access objects and arrays through dot notation",
-            "keywords": [
-                "array",
-                "json",
-                "object",
-                "query"
-            ],
-            "time": "2015-08-12 14:51:51"
         },
         {
             "name": "phpdocumentor/reflection-docblock",
@@ -891,14 +893,16 @@
             "time": "2015-12-26 13:39:53"
         }
     ],
-    "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "xiio/array-manipulator": 20,
         "phpspec/phpspec": 15
     },
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": ">=5.4.0"
+    },
     "platform-dev": []
 }

@@ -132,6 +132,11 @@ class ArrayManipulatorSpec extends ObjectBehavior
 		$this->get()->shouldHaveKeyWithValueType("stdClass 2", 'string');
 	}
 
+	function it_has_factory_method(){
+		$input = $this->getExampleArray();
+		$this::init($input)->shouldHaveType('xiio\ArrayManipulator');
+	}
+
 	function let($object)
 	{
 		$this->beConstructedWith([]);
