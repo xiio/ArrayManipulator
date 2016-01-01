@@ -2,6 +2,7 @@
 
 namespace spec\xiio;
 
+use Jasny\DotKey;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
@@ -18,7 +19,7 @@ class ArrayManipulatorSpec extends ObjectBehavior
 		$input = $this->getExampleArray();
 
 		$this->setArray($input);
-		$this->group_by('type');
+		$this->groupBy('type');
 		$this->get()
 			->shouldHaveCount(2);
 		$this->get()
@@ -32,7 +33,7 @@ class ArrayManipulatorSpec extends ObjectBehavior
 		$input = $this->getExampleArray();
 
 		$this->setArray($input);
-		$this->group_by('meta.creator');
+		$this->groupBy('meta.creator');
 		$this->get()
 			->shouldHaveCount(3);
 		$this->get()
@@ -66,7 +67,7 @@ class ArrayManipulatorSpec extends ObjectBehavior
 			2 => ['name' => 'Gabriel'],
 		];
 		$this->setArray($array);
-		$this->group_by('name');
+		$this->groupBy('name');
 		$this->get()->shouldHaveCount(2);
 		$this->reset();
 		$this->get()->shouldHaveCount(3);
@@ -96,8 +97,39 @@ class ArrayManipulatorSpec extends ObjectBehavior
 		$excluded_fields = ['meta.creator', 'type'];
 		$input = $this->getExampleArray();
 		$this->setArray($input);
-		$this->excludeFields($excluded_fields);
-		$result = $this->get()->shouldHaveCount(4);
+		$this->removeFields($excluded_fields);
+		$this->get()->shouldHaveCount(4);
+		$this->get()->shouldDoesNotHaveElementWithKey(0, "type");
+		$this->get()->shouldDoesNotHaveElementWithKey(0, "meta.creator");
+		$this->get()->shouldDoesNotHaveElementWithKey(1, "type");
+		$this->get()->shouldDoesNotHaveElementWithKey(1, "meta.creator");
+		$this->get()->shouldDoesNotHaveElementWithKey(2, "type");
+		$this->get()->shouldDoesNotHaveElementWithKey(2, "meta.creator");
+		$this->get()->shouldDoesNotHaveElementWithKey(3, "type");
+		$this->get()->shouldDoesNotHaveElementWithKey(3, "meta.creator");
+	}
+
+	function it_leave_fields(){
+		$leave_fields = ['name', 'meta.creator'];
+		$input = $this->getExampleArray();
+		$this->setArray($input);
+		$this->leaveFields($leave_fields);
+		$this->get()->shouldDoesNotHaveElementWithKey(2, "type");
+		$this->get()->shouldHaveElementWithKey(2, "name");
+		$this->get()->shouldHaveElementWithKey(2, "meta.creator");
+	}
+
+	function it_can_help_get_select_options(){
+		$leave_fields = ['name'];
+		$input = $this->getExampleArray();
+		$this->setArray($input);
+		$this->leaveFields($leave_fields);
+		$this->groupBy('name');
+		$this->compact();
+		$this->get()->shouldHaveKeyWithValueType("first", 'string');
+		$this->get()->shouldHaveKeyWithValueType("stdClass 1", 'string');
+		$this->get()->shouldHaveKeyWithValueType("second", 'string');
+		$this->get()->shouldHaveKeyWithValueType("stdClass 2", 'string');
 	}
 
 	function let($object)
@@ -154,7 +186,19 @@ class ArrayManipulatorSpec extends ObjectBehavior
 					$result = true;
                 }
                 return $result;
-            }
+            },
+            'doesNotHaveElementWithKey' => function ($subject, $element_index, $key) {
+                if (!isset($subject[$element_index])){
+                    return true;
+                }
+                return !DotKey::on($subject[$element_index])->exists($key);
+            },
+            'haveElementWithKey' => function ($subject, $element_index, $key) {
+                if (!isset($subject[$element_index])){
+                    return false;
+                }
+                return DotKey::on($subject[$element_index])->exists($key);
+            },
         ];
     }
 

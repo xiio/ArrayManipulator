@@ -4,10 +4,15 @@ namespace xiio;
 
 use Jasny\DotKey;
 
+/**
+ * Class ArrayManipulator
+ * @package xiio
+ */
 class ArrayManipulator
 {
+
 	/**
-	 * Untouched input array
+	 * Readonly input array
 	 * @var array
 	 */
 	private $init_data;
@@ -23,7 +28,95 @@ class ArrayManipulator
 		$this->setArray($array, TRUE);
 	}
 
-	public function group_by($field)
+	/**
+	 * Group elements aware of count and type. If is more then one row make array if is only one set it as value
+	 *
+	 * @param bool $recursive
+	 *
+	 * @return \xiio\ArrayManipulator
+	 */
+	public function compact($recursive = TRUE)
+	{
+		$result = [];
+		foreach ($this->data as $key => $item) {
+			$result[ $key ] = $this->do_compact($item, $recursive);
+		}
+		$this->data = $result;
+
+		return $this;
+	}
+
+	/**
+	 * Concat string fields
+	 *
+	 * @param array  $fields
+	 * @param string $new_field New field Name
+	 * @param string $glue      default space
+	 *
+	 * @return ArrayManipulator
+	 */
+	public function concatWs(array $fields, $new_field, $glue = ' ')
+	{
+		$result = array();
+		foreach ($this->data as $key => $row) {
+			if (!is_array($row) || empty($row))
+				continue;
+			$concat = array();
+			foreach ($row as $field => $val) {
+				if (in_array($field, $fields) && is_string($val)) {
+					$concat[] = $val;
+				} else {
+					$result[ $key ][ $field ] = $val;
+				}
+			}
+			$concat = implode($glue, $concat);
+			$result[ $key ][ $new_field ] = $concat;
+		}
+		$this->setArray($result);
+
+		return $this;
+	}
+
+	/**
+	 * Filter array by field name and value
+	 *
+	 * @param $field
+	 * @param $value
+	 *
+	 * @return ArrayManipulator
+	 */
+	public function filter($field, $value)
+	{
+		$result = array();
+		foreach ($this->data as $key => $row) {
+			$dotkey = DotKey::on($row);
+			if ($dotkey->exists($field) && $dotkey->get($field) === $value) {
+				$result[ $key ] = $row;
+			}
+		}
+		$this->data = $result;
+
+		return $this;
+	}
+
+	/**
+	 * Gets data with modifications
+	 * @return array
+	 */
+	public function get()
+	{
+		return $this->data;
+	}
+
+	/**
+	 * Group by given field. You can use path ex.: meta.creator.name
+	 * If field not exist, element will be exluded from result
+	 *
+	 * @param string $field path to field
+	 *
+	 * @return $this
+	 */
+	public function groupBy($field)
 	{
 		if (!$this->isEmpty()) {
 			$result = array();
@@ -31,10 +124,10 @@ class ArrayManipulator
 				$dotkey = DotKey::on($row);
 				if (!$dotkey->exists($field)) continue;
 				$key = $dotkey->get($field);
-				if (!isset($result[$key])){
-					$result[$key] = [];
+				if (!isset($result[ $key ])) {
+					$result[ $key ] = [];
 				}
-				$result[$key][] = $row;
+				$result[ $key ][] = $row;
 			}
 			$this->data = $result;
 		}
@@ -42,57 +135,68 @@ class ArrayManipulator
 		return $this;
 	}
 
-	/**
-	 * Group elements aware of count. If is more then one row make array if is only one set it as value
-	 * @return ArrayManipulator
-	 */
-	public function compact()
+	public function isEmpty()
 	{
-		$result = array();
-		foreach ($this->data as $key => $row) {
-			if (count($row) == 1) {
-				$array = array_slice($row, 0, 1);
-				$result[ $key ] = array_shift($array);
+		return empty($this->data);
+	}
+
+	/**
+	 * Leave fields provided in array $fields
+	 *
+	 * @param array $fields
+	 *
+	 * @return $this
+	 */
+	public function leaveFields(array $fields)
+	{
+		$result = [];
+		foreach ($this->data as $element) {
+			if (is_array($element)) {
+				$result[] = $this->leave_fields_array($element, $fields);
+			} elseif (is_object($element)) {
+				$result[] = $this->leave_fields_object($element, $fields);
 			} else {
-				$result[ $key ] = $row;
+				$result[] = $element;
 			}
 		}
 		$this->data = $result;
+
 		return $this;
 	}
 
 	/**
-	 * Filter array by field name and value
-	 * @param $field
-	 * @param $value
+	 * Remove fields provided in array $fields
 	 *
+	 * @param array $fields
+	 *
+	 * @return $this
+	 */
+	public function removeFields(array $fields)
+	{
+		$result = array();
+		foreach ($this->data as $key => $row) {
+			$dotkey = DotKey::on($row);
+			$result_row = [];
+			foreach ($fields as $field) {
+				$result_row = $dotkey->remove($field);
+			}
+			$result[] = $result_row;
+		}
+		$this->data = $result;
+
+		return $this;
+	}
+
+	/**
+	 * Reset any changes done with array
 	 * @return ArrayManipulator
 	 */
-    public function filter($field, $value)
-    {
-        $result = array();
-		foreach ($this->data as $key => $row) {
-			$dotkey = DotKey::on($row);
-			if ($dotkey->exists($field) && $dotkey->get($field)===$value){
-				$result[$key] = $row;
-			}
-		}
-		$this->data = $result;
-		return $this;
-    }
+	public function reset()
+	{
+		$this->data = $this->init_data;
 
-	public function excludeFields(array $fields)
-    {
-        $result = array();
-		foreach ($this->data as $key => $row) {
-			$dotkey = DotKey::on($row);
-			foreach($fields as $field){
-				$result[] = $dotkey->remove($field);
-			}
-		}
-		$this->data = $result;
 		return $this;
-    }
+	}
 
 	/**
 	 * Set new array for manipulator.
@@ -109,28 +213,72 @@ class ArrayManipulator
 		return $this;
 	}
 
-	public function isEmpty()
+	protected function compact_array($item, $recursive)
 	{
-		return empty($this->data);
+		if (count($item) == 1) {
+			$values = array_values($item);
+			if (!is_scalar($values[0]) && TRUE === $recursive) {
+				$item = $this->do_compact($values[0]);
+			} else {
+				$array = array_slice($item, 0, 1);
+				$item = array_shift($array);
+			}
+		}
+
+		return $item;
 	}
 
-	/**
-	 * Gets data with modifications
-	 * @return array
-	 */
-	public function get()
+	protected function compact_object($item)
 	{
-		return $this->data;
+		$obj_fields = get_object_vars($item);
+		$values = array_values($obj_fields);
+		if (count($obj_fields == 1) && is_scalar($values[0])) {
+			$item = $values[0];
+		}
+
+		return $item;
 	}
 
-	/**
-	 * Reset any changes done with array
-	 * @return ArrayManipulator
-	 */
-    public function reset()
-    {
-       $this->data = $this->init_data;
-       return $this;
-    }
+	protected function do_compact($items, $recursive = TRUE)
+	{
+		if (is_array($items)) {
+			return $this->compact_array($items, $recursive);
+		} elseif (is_object($items)) {
+			return $this->compact_object($items);
+		} else {
+			return $items;
+		}
+	}
+
+	protected function leave_fields_array(array $array, array $fields)
+	{
+		$result = [];
+		$result_dotkey = DotKey::on([]);
+		$dotkey = DotKey::on($array);
+		foreach ($fields as $field) {
+			if (!$dotkey->exists($field)) continue;
+			$result = $result_dotkey->put($field, $dotkey->get($field));
+		}
+
+		return $result;
+	}
+
+	protected function leave_fields_object($object, array $fields)
+	{
+		$obj_fields = get_object_vars($object);
+		$leave_fields_values = [];
+		$dotkey = DotKey::on($object);
+		foreach ($fields as $field) {
+			$leave_fields_values[ $field ] = $dotkey->get($field);
+		}
+		foreach ($obj_fields as $field_name => $field_value) {
+			$object = $dotkey->remove($field_name);
+		}
+		foreach ($leave_fields_values as $field_name => $value) {
+			$object = $dotkey->put($field_name, $value);
+		}
+
+		return $object;
+	}
 
 }
