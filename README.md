@@ -16,3 +16,4 @@ Convenient way to manipulate arrays.
 	* removeFields(array $fields)
 	* reset()
 	* setArray(array $array)
+	* toArray($recursive = TRUE)

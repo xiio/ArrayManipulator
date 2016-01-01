@@ -145,6 +145,14 @@ class ArrayManipulatorSpec extends ObjectBehavior
 		$this::init($input)->shouldHaveType('xiio\ArrayManipulator');
 	}
 
+	function it_convert_objects_to_array(){
+		$input = $this->getExampleArray();
+		$this->setArray($input);
+		$this->toArray();
+		$this->get()->shouldHaveKeyWithValueType(1, 'array');
+		$this->get()->shouldHaveKeyWithValueType(3, 'array');
+	}
+
 	function let($object)
 	{
 		$this->beConstructedWith([]);
