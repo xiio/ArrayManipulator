@@ -11,6 +11,7 @@ Convenient way to manipulate arrays.
 	* compact($recursive = TRUE)
 	* concatWS(array $fields, $glue, $newFieldName, $leaveConcatFields = TRUE)
 	* filter($field, $value)
+	* flat($key, $value)
 	* get()
 	* groupBy($field)
 	* isEmpty()

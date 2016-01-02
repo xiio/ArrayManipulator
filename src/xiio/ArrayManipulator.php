@@ -67,6 +67,7 @@ class ArrayManipulator
 				}
 			}
 		}
+
 		return $this;
 	}
 
@@ -131,6 +132,33 @@ class ArrayManipulator
 			if ($dotkey->exists($field) && $dotkey->get($field) === $value) {
 				$result[ $key ] = $row;
 			}
+		}
+		$this->data = $result;
+
+		return $this;
+	}
+
+	/**
+	 * It flats array to key => value pairs from given parameters
+	 *
+	 * @param string|array $key
+	 * @param string|array $value
+	 *
+	 * @return $this
+	 */
+	public function flat($key, $value)
+	{
+		$result = [];
+
+		foreach ($this->data as $data_key => $row) {
+			if (!is_object($row) && !is_array($row)) {//set current key and value
+				$new_key = $data_key;
+				$new_value = $row;
+			} else {//set new key and value
+				$new_key = $this->flat_element($row, $key);
+				$new_value = $this->flat_element($row, $value);
+			}
+			$result[ $new_key ] = $new_value;
 		}
 		$this->data = $result;
 
@@ -204,11 +232,11 @@ class ArrayManipulator
 		$result = [];
 		foreach ($this->data as $key => $element) {
 			if (is_array($element)) {
-				$result[$key] = $this->leave_fields_array($element, $fields);
+				$result[ $key ] = $this->leave_fields_array($element, $fields);
 			} elseif (is_object($element)) {
-				$result[$key] = $this->leave_fields_object($element, $fields);
+				$result[ $key ] = $this->leave_fields_object($element, $fields);
 			} else {
-				$result[$key] = $element;
+				$result[ $key ] = $element;
 			}
 		}
 		$this->data = $result;
@@ -232,7 +260,7 @@ class ArrayManipulator
 			foreach ($fields as $field) {
 				$result_row = $dotkey->remove($field);
 			}
-			$result[] = $result_row;
+			$result[ $key ] = $result_row;
 		}
 		$this->data = $result;
 
@@ -318,6 +346,39 @@ class ArrayManipulator
 		}
 	}
 
+	protected function flat_element($element, $value)
+	{
+		if (is_string($value)) {
+			return $this->flat_process_string($element, $value);
+		} elseif (is_array($value)) {
+			return $this->flat_process_array($element, $value);
+		} else {
+			throw new \InvalidArgumentException('Parameter $key, $value should be string or array. ' . getype($value) . ' given.');
+		}
+	}
+
+	protected function flat_process_array($element, array $value)
+	{
+		$dotkey = DotKey::on($element);
+		$result = '';
+		foreach ($value as $field_name) {
+			if ($dotkey->exists($field_name)) {
+				$result .= $dotkey->get($field_name);
+			} else {
+				$result .= $field_name;
+			}
+		}
+
+		return $result;
+	}
+
+	protected function flat_process_string($element, $value)
+	{
+		$dotkey = DotKey::on($element);
+
+		return $dotkey->get($value);
+	}
+
 	protected function leave_fields_array(array $array, array $fields)
 	{
 		$result = [];
@@ -349,6 +410,3 @@ class ArrayManipulator
 		return $object;
 	}
 }
-
-
-

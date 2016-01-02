@@ -223,6 +223,30 @@ class ArrayManipulatorSpec extends ObjectBehavior
 		$this->get()->shouldHaveCount(3);
 	}
 
+	function it_flat_array_simple()
+	{
+		$input = $this->getExampleArray();
+		$this->setArray($input);
+		$this->flat('id', 'name');
+		$this->get()->shouldHaveCount(4);
+		$this->get()->shouldHaveKeyWithValue(0, "first");
+		$this->get()->shouldHaveKeyWithValue(1, "stdClass 1");
+		$this->get()->shouldHaveKeyWithValue(2, "second");
+		$this->get()->shouldHaveKeyWithValue(3, "stdClass 2");
+	}
+
+	function it_flat_array_complex()
+	{
+		$input = $this->getExampleArray();
+		$this->setArray($input);
+		$this->flat(['id', '_', 'type'], ['name', ' - ', 'meta.creator']);
+		$this->get()->shouldHaveCount(4);
+		$this->get()->shouldHaveKeyWithValue("0_array", "first - David");
+		$this->get()->shouldHaveKeyWithValue("1_object", "stdClass 1 - Thomas");
+		$this->get()->shouldHaveKeyWithValue("2_array", "second - Jasmine");
+		$this->get()->shouldHaveKeyWithValue("3_object", "stdClass 2 - David");
+	}
+
 	function let($object)
 	{
 		$this->beConstructedWith([]);
@@ -233,6 +257,7 @@ class ArrayManipulatorSpec extends ObjectBehavior
 		$stdClass = new DummyClass;
 		$input = [
 			0 => [
+				'id'=> 0,
 				'name' => "first",
 				'type' => "array",
 				'meta' => [
@@ -242,6 +267,7 @@ class ArrayManipulatorSpec extends ObjectBehavior
 			1 => call_user_func_array(function ($class) {
 				$stubClass = clone $class;
 				$stubClass->name .= " 1";
+				$stubClass->id = 1;
 				$stubClass->meta = [
 					"creator" => 'Thomas'
 				];
@@ -249,6 +275,7 @@ class ArrayManipulatorSpec extends ObjectBehavior
 				return $stubClass;
 			}, [$stdClass]),
 			2 => [
+				'id'=> 2,
 				'name' => "second",
 				'type' => "array",
 				'meta' => [
@@ -258,7 +285,7 @@ class ArrayManipulatorSpec extends ObjectBehavior
 			3 => call_user_func_array(function ($class) {
 				$stubClass = clone $class;
 				$stubClass->name .= " 2";
-
+				$stubClass->id = 3;
 				return $stubClass;
 			}, [$stdClass]),
 		];
@@ -271,6 +298,7 @@ class ArrayManipulatorSpec extends ObjectBehavior
 
 class DummyClass
 {
+	public $id;
 	public $name = 'stdClass';
 	public $type = 'object';
 	public $meta = [
